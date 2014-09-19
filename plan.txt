@@ -1,0 +1,34 @@
+views.py:
+
+# Hook this up in your urls.py -- the URL is going to be the thing the Javascript calls.
+def get_access_token(request):
+	access_token = request.POST['access_token']
+	user_id = request.POST['user_id']
+
+	assert access_token
+
+	assert len(access_token) < 4000
+
+	(Here you probably want to try exchanging it.)
+
+	response = requests.get('/oauth/access_token', params={
+		'grant_type'='fb_exchange_token',        
+	    'client_id'={app-id}
+	    'client_secret'={app-secret},
+	    'fb_exchange_token'={short-lived-token},
+	})
+
+	deal with response.json() ?
+
+	this includes the expiry date/time, store that in particp table (it better)
+
+	get the user ID / name from here!
+
+	send to database right there
+
+	return HttpResponse("Yaay", content_type="text/plain")
+
+
+
+def home(request):
+	# render the template that has the JS sdk.

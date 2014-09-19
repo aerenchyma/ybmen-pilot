@@ -1,0 +1,55 @@
+<html>
+  <head>
+    <script src="jquery-2.1.1.min.js"></script>
+    
+    <title>jQuery Example</title>
+    <script>
+      $(document).ready(function() {
+        $.ajaxSetup({ cache: true });
+        $.getScript('//connect.facebook.net/en_UK/all.js', function(){
+          FB.init({
+            appId: '1446542485629653',
+          });     
+          //on click of button do up to ln 38 (all the rest)
+          $.onclick('#loginbutton') {
+            FB.getLoginStatus(function(response) {
+              if (response.status === 'connected') {
+                console.log('Logged in.');
+                var uid = response.authResponse.userID;
+                var accessToken = response.authResponse.accessToken;
+                console.log(response);
+
+                $.ajax('URL', {
+                  method: 'post',
+                  data: {
+                    'accessToken': accessToken,
+                    'user_id': uid
+
+                  },
+                  success: function(data, status) {
+                    // Show something to say that it worked.
+                    // `data` is whatever the server returned.
+                  },
+                  error: function(xhr, status) {
+                    // It failed -- you probably don't know why.
+                  }
+                })
+              }
+              else {
+                FB.login();
+              }
+            });
+          }
+        });  
+      });
+    </script>
+
+
+    <button type="button" onclick="" id="loginbutton">Log In</button>
+
+  </head>
+
+
+
+
+</html>
