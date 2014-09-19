@@ -5,13 +5,15 @@
     <title>jQuery Example</title>
     <script>
       $(document).ready(function() {
+
         $.ajaxSetup({ cache: true });
         $.getScript('//connect.facebook.net/en_UK/all.js', function(){
           FB.init({
             appId: '1446542485629653',
           });     
           //on click of button do up to ln 38 (all the rest)
-          $.onclick('#loginbutton') {
+          //$.onclick('#loginbutton') {
+          $( "#loginbutton" ).click(function() {
             FB.getLoginStatus(function(response) {
               if (response.status === 'connected') {
                 console.log('Logged in.');
@@ -39,13 +41,14 @@
                 FB.login();
               }
             });
-          }
+          });
+
         });  
       });
     </script>
 
 
-    <button type="button" onclick="" id="loginbutton">Log In</button>
+    <button type="button" id="loginbutton">Log In</button>
 
   </head>
 
