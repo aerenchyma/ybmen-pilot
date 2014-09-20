@@ -7,6 +7,6 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'ybmenpilot.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
-    url(r'^get_access_token/', 'ybmenpilot.views.get_access_token',name='get_access_token'),
+    url(r'^getaccess', 'ybmenpilot.views.get_access_token',name='get_access_token'),
     url(r'^admin/', include(admin.site.urls)),
 )
