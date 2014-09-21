@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 import secrets
+from ybmenpilot.models import Participant 
 
 @csrf_exempt
 def home(request):
@@ -22,16 +23,27 @@ def get_access_token(request):
 	req = request
 	access_token = req.POST['access_token']
 	user_id = req.POST['user_id']
-	# error checks
-	#assert access_token 
-	#assert len(access_token) < 4000
-	#if not accesstoke
-	# exchange token for extended token now
-	response = requests.get('https:/graph.facebook.com/oauth/access_token', params={'grant_type':'fb_exchange_token','client_id':'1446542485629653','client_secret':secrets.client_secret,'fb_exchange_token':access_token})
-	resp = json.loads(response.text)
-	#context = {'resp':str(resp)}
-	#return Http(str(resp))
 
+	# handle errors
+
+	response = requests.get('https://graph.facebook.com/oauth/access_token', params={'grant_type':'fb_exchange_token','client_id':'1446542485629653','client_secret':secrets.client_secret,'fb_exchange_token':access_token})
+	# this is not json.
+	#mtch = re.search(r"^=(\w*)&", response.text)
+	firstbit = len("access_token=")
+	lastind = response.text.find("&")
+	mtch = response.text[firstbit:lastind]
+
+	# save info to database; need error checks for primary key
+	try:
+		# save identity and token
+		Participant.objects.get_or_create(ident=user_id,token=mtch)
+		# try to get and save other information?
+	except IntegrityError: # except object already exists
+	# 	# update token if necessary
+		pass
+
+
+	return HttpResponse("success authorized", content_type='text/plain') # return plain text to browser... probably shouldn't do that
 	# handle response
 	# save extended token to database
 
