@@ -19,15 +19,25 @@
             }
             return cookieValue;
         }
+
         var csrftoken = getCookie('csrftoken');
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
+        // $.ajaxSetup({
+        //     beforeSend: function(xhr, settings) {
+        //         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+        //             xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        //         }
+        //     }
+        // });
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                    // Only send the token to relative URLs i.e. locally.
+                    xhr.setRequestHeader("X-CSRFToken",
+                                         $("#csrfmiddlewaretoken").val());
                 }
             }
         });
@@ -43,13 +53,15 @@
               if (response.status === 'connected') {
                 console.log('Logged in.');
                 var uid = response.authResponse.userID;
-                var accessToken = response.authResponse.accessToken;
+                var access_token = response.authResponse.accessToken;
+                console.log("response");
                 console.log(response);
+                console.log(access_token);
 
                 $.ajax('/getaccess', { // url in urls.py will map to the get_access_token view
                   method: 'post',
                   data: {
-                    'accessToken': accessToken,
+                    'access_token': access_token,
                     'user_id': uid
                   },
                   success: function(data, status) {

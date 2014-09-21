@@ -7,9 +7,10 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.shortcuts import render_to_response
 from django.shortcuts import render
+from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 
-
+@csrf_exempt
 def home(request):
 	context = {}
 	return render(request, 'home.html', context)
@@ -18,14 +19,14 @@ def home(request):
 @csrf_exempt
 def get_access_token(request):
 	req = request
-	accesstoken = request.GET['accessToken']
-	user_id = request.GET['user_id']
+	access_token = req.POST['access_token']
+	user_id = req.POST['user_id']
 	# error checks
 	#assert access_token 
 	#assert len(access_token) < 4000
 	#if not accesstoke
 	# exchange token for extended token now
-	response = requests.get('https:/graph.facebook.com/oauth/access_token', params={'grant_type':'fb_exchange_token','client_id':'1446542485629653','client_secret':'28de78bdb1776d365549f9e98b0c199f','fb_exchange_token':accessToken})
+	response = requests.get('https:/graph.facebook.com/oauth/access_token', params={'grant_type':'fb_exchange_token','client_id':'1446542485629653','client_secret':'28de78bdb1776d365549f9e98b0c199f','fb_exchange_token':access_token})
 	resp = json.loads(response.text)
 	#context = {'resp':str(resp)}
 	#return Http(str(resp))
