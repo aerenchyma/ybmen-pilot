@@ -11,6 +11,9 @@ from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
 import secrets
 from ybmenpilot.models import Participant 
+from django.db import IntegrityError
+
+user_authenticated = False
 
 @csrf_exempt
 def home(request):
@@ -32,6 +35,7 @@ def get_access_token(request):
 	firstbit = len("access_token=")
 	lastind = response.text.find("&")
 	mtch = response.text[firstbit:lastind]
+	user_authenticated = True # flip auth flag
 
 	# save info to database; need error checks for primary key
 	try:
@@ -39,8 +43,11 @@ def get_access_token(request):
 		Participant.objects.get_or_create(ident=user_id,token=mtch)
 		# try to get and save other information?
 	except IntegrityError: # except object already exists
-	# 	# update token if necessary
-		pass
+	 	# update token if necessary
+		p = Participant.objects.get(ident=user_id)
+		p.token = mtch
+		p.save()
+	
 
 
 	return HttpResponse("success authorized", content_type='text/plain') # return plain text to browser... probably shouldn't do that

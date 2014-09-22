@@ -25,13 +25,7 @@
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
-        // $.ajaxSetup({
-        //     beforeSend: function(xhr, settings) {
-        //         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-        //             xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        //         }
-        //     }
-        // });
+
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
                 if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
@@ -78,7 +72,16 @@
                 })
               }
               else {
-                FB.login();
+                //FB.login();
+                FB.login(function(response) {
+                   // handle the response
+                 }, {
+                   scope: 'user_likes, user_about_me, user_status',
+                   return_scopes: true
+                 });
+                 // comments on permissions:
+                 // Likes: Visibly enable connections with other users with mutual interests.
+                 // Likes: provide value to user by analyzing content of statuses
               }
             });
           });

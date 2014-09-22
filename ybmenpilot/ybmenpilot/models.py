@@ -14,6 +14,7 @@ class Participant(models.Model):
 	birthday = models.CharField(max_length=12, default="")
 	expirytoken = models.CharField(max_length=20,default="")
 	num_likes = models.IntegerField(default=0)
+	
 
 class GroupPost(models.Model):
 	ident = models.CharField(primary_key=True,max_length=100)
