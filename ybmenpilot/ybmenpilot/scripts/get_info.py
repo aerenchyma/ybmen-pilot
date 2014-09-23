@@ -189,21 +189,6 @@ def get_user_stuff(graph,user_id): # not using object because it's so few things
     # if not authorized, create user obj and add group information relevant
 
 
-
-# to see for db insert/update
-#return tuple(self._id,self._person,self._date_posted, self._time_posted, self._message,self._num_comments,self._num_likes,self._imagecontent,self._addl_content,self._appl)
-
-# class Update(models.Model):
-#     post_id = models.CharField(primary_key=True,max_length=100)
-#     content = models.TextField()
-#     date_posted =  models.TextField(max_length=100)
-#     link = models.CharField(max_length=200)
-#     time_posted = models.CharField(max_length=25)
-#     person_id = models.CharField(max_length=100)
-#     content_type = models.CharField(max_length=25)
-#     imagecontent = models.CharField(max_length=1000)
-#     num_comments_recd = models.IntegerField(default=0)
-
 def get_user_updates(graph,user_id):
     try:
         user_feed = graph.get_object("{}/feed?limit=1000".format(user_id)) # need to limit by date
@@ -211,7 +196,7 @@ def get_user_updates(graph,user_id):
         for d in user_feed['data']:
             upd = PersonalUpdate(d,user_id)
             tup = upd.__repr__() # returns the tuple of info, add this list to db
-            Update.objects.get_or_create(post_id=tup[0],person_id=tup[1],link="",date_posted=tup[2],link=get_links_from_message(tup[4]),content=tup[4],time_posted=tup[3],num_comments_recd=tup[5],num_likes_recd=tup[6],content_type=tup[7],imagecontent=tup[8],addl_content=tup[9],application=tup[10])
+            Update.objects.get_or_create(post_id=tup[0],person_id=tup[1],date_posted=tup[2],link=get_links_from_message(tup[4]),content=tup[4],time_posted=tup[3],num_comments_recd=tup[5],num_likes_recd=tup[6],content_type=tup[7],imagecontent=tup[8],addl_content=tup[9],application=tup[10])
     except IntegrityError:
         pass # should deal with updates
 
