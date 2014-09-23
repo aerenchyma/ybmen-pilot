@@ -5,6 +5,9 @@ import facebook, re, hashlib
 
 
 ## helper functions
+
+# lw uid 1446716518923703 (public info, poss useful)
+
 def anonymize(ident):
   m = hashlib.sha224(ident).hexdigest()
   return m
@@ -85,15 +88,21 @@ class PersonalUpdate(object):
         if update_dict["from"]["id"] == user_id: # if it's a personal update, get other info, otherwise pass
             self._id = anonymize(post_dict["id"][-15:]) # check - know that post ids are 17 characters long
             self._person = user_id # identify update by id, this reps one row
-            if 'message' in post_dict:
-                self._message = post_dict['message']
+            self._date_posted = update_dict['created_time'][:10]
+            self._time_posted = update_dict['created_time'][10:]
+            if "type" in update_dict:
+                self._type = update_dict["type"]
+            else:
+                self._type = "status"
+            if 'message' in update_dict:
+                self._message = update_dict['message']
             else:
                 self._message = ""
-            if 'comments' in post_dict:
+            if 'comments' in update_dict:
                 self._num_comments = len([x['message'] for x in update_dict['comments']['data']])
             else:
                 self._num_comments = 0 
-            if 'likes' in post_dict:
+            if 'likes' in update_dict:
                 self._num_likes = len([anonymize(x['id']) for x in update_dict['likes']['data']])
             else:
                 self._num_likes = 0
@@ -111,7 +120,7 @@ class PersonalUpdate(object):
                 self._appl = "Web" 
 
     def __repr__(self):
-        return tuple(self._id,self._person,self._message,self._num_comments,self._num_likes,self._imagecontent,self._addl_content,self._appl)
+        return tuple(self._id,self._person,self._date_posted, self._time_posted, self._message,self._num_comments,self._num_likes,self._type,self._imagecontent,self._addl_content,self._appl)
 
 # Participant object (member of group totals/info)
 class Participant(object):
@@ -120,7 +129,6 @@ class Participant(object):
         self._num_posts = 0
         self._num_likes = 0
         self._num_comments = 0
-        self._mean_post_len = 0
 
     def add_num_posts(self): # number of posts posted in group
         self._num_posts += 1
@@ -128,17 +136,6 @@ class Participant(object):
         self._num_likes += 1
     def add_num_comments(self): # number of comments COMMENTED, not received (in group)
         self._num_comments += 1
-
-    def get_mean_postlen(self, post_insts):
-        post_lengths = []
-        for x in post_insts:
-            if x._poster == self._id:
-                post_lengths.append(len(x._message))
-        # for m in [y for y in x._comments for x in post_insts]: # does that double listcomp work
-        #   if m['from']['id'] == self._id:
-        #       post_lengths.append(len(m['message']))
-        self._mean_post_len = np.mean(post_lengths)
-        #return self._mean_post_len
 
     def __repr__(self):
         return tuple([self._id, self._num_posts, self._num_comments, self._num_likes])
@@ -194,28 +191,38 @@ def get_user_stuff(graph,user_id): # not using object because it's so few things
 
 
 # to see for db insert/update
-# tuple(self._id,self._person,self._message,self._num_comments,self._num_likes,self._imagecontent,self._addl_content,self._appl)
+#return tuple(self._id,self._person,self._date_posted, self._time_posted, self._message,self._num_comments,self._num_likes,self._imagecontent,self._addl_content,self._appl)
 
+# class Update(models.Model):
+#     post_id = models.CharField(primary_key=True,max_length=100)
+#     content = models.TextField()
+#     date_posted =  models.TextField(max_length=100)
+#     link = models.CharField(max_length=200)
+#     time_posted = models.CharField(max_length=25)
+#     person_id = models.CharField(max_length=100)
+#     content_type = models.CharField(max_length=25)
+#     imagecontent = models.CharField(max_length=1000)
+#     num_comments_recd = models.IntegerField(default=0)
 
 def get_user_updates(graph,user_id):
     try:
-        user_feed = graph.get_object("{}/feed?limit=600".format(user_id)) # need to limit by date
+        user_feed = graph.get_object("{}/feed?limit=1000".format(user_id)) # need to limit by date
         # iterate through feed and add to UPDATES table, need to do error handling
         for d in user_feed['data']:
             upd = PersonalUpdate(d,user_id)
             tup = upd.__repr__() # returns the tuple of info, add this list to db
-            Update.objects.get_or_create(post_id=)
+            Update.objects.get_or_create(post_id=tup[0],person_id=tup[1],link="",date_posted=tup[2],link=get_links_from_message(tup[4]),content=tup[4],time_posted=tup[3],num_comments_recd=tup[5],num_likes_recd=tup[6],content_type=tup[7],imagecontent=tup[8],addl_content=tup[9],application=tup[10])
     except IntegrityError:
         pass # should deal with updates
 
 
 # function for handling user feeds
-def from_users(graph,user_id): # user id is -- for EACH user, user id .. in overall fxn
+def from_users(user_id): # user id is -- for EACH user, user id .. in overall fxn
     p = Participant.objects.get(ident=user_id)
     tkn = p.token # this has to exist at this point, so should error handle
     # make call to api for user information here
     graph = facebook.GraphAPI(tkn)
-    get_user_stuff(graph)
+    #get_user_stuff(graph)
     get_user_updates(graph) # examine what these return and deal with them appropriately
     # so this function can be run for each authenticated user
     # remember the members thing is currently different ... but expect those to already exist, just include as check adding-new possibility
@@ -226,15 +233,17 @@ def from_users(graph,user_id): # user id is -- for EACH user, user id .. in over
 
 def run():
     # handle the individual things
+
     authed_users = Participant.objects.all()
     for au in authed_users:
         # get or create with error handling for update rows
         # save 
-
+        uid = au.ident # or user_id??
+        from_users(uid)
 
     # handle all the group stuff
 
-    pass
+    #pass
 
 
 
