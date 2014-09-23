@@ -1,16 +1,18 @@
 from django.db import models
 
-# TODOS need to add fields to Participant and to Updates for img content
-
 class Update(models.Model):
-	post_id = models.TextField(primary_key=True,max_length=100)
-	content = models.TextField()
+	post_id = models.CharField(primary_key=True,max_length=100)
+	content = models.TextField(default="")
+	date_posted =  models.TextField(max_length=100)
+	time_posted = models.CharField(max_length=25)
 	link = models.CharField(max_length=200)
-	date_posted = models.DateField()
 	person_id = models.CharField(max_length=100)
 	content_type = models.CharField(max_length=25)
 	imagecontent = models.CharField(max_length=1000)
 	num_comments_recd = models.IntegerField(default=0)
+	num_likes_recd = models.IntegerField(default=0)
+	addl_content = models.TextField(default="")
+	application = models.CharField(max_length=200,default="")
 
 class Participant(models.Model):
 	ident = models.CharField(primary_key=True, max_length=200)
@@ -21,7 +23,6 @@ class Participant(models.Model):
 	num_likes = models.IntegerField(default=0)
 	gender = models.CharField(max_length=20,default="")
 	hometown = models.CharField(max_length=100,default="")
-
 
 class GroupPost(models.Model):
 	ident = models.CharField(primary_key=True,max_length=100)
