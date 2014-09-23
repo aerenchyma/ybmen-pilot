@@ -1,5 +1,6 @@
 import json
 import requests
+import secrets # for keeping app secret
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
@@ -9,15 +10,20 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_exempt, csrf_protect, ensure_csrf_cookie
-import secrets
 from ybmenpilot.models import Participant 
 from django.db import IntegrityError
 
 user_authenticated = False
 
+# user stuff --
+# no, could do this in the task for all authenticated users
+
+## views
+
 @csrf_exempt
 def home(request):
 	context = {}
+	# potential check in tpl later for user_authenticated?
 	return render(request, 'home.html', context)
 	#return render_to_response(request,'home.html')
 
@@ -28,16 +34,19 @@ def get_access_token(request):
 	user_id = req.POST['user_id']
 
 	# handle errors
+	assert access_token
+	assert len(access_token) < 6000
 
 	response = requests.get('https://graph.facebook.com/oauth/access_token', params={'grant_type':'fb_exchange_token','client_id':'1446542485629653','client_secret':secrets.client_secret,'fb_exchange_token':access_token})
-	# this is not json.
-	#mtch = re.search(r"^=(\w*)&", response.text)
+	# this response is not json.
+
+	# vaguely silly way of parsing the not-json response that should work anyway
 	firstbit = len("access_token=")
 	lastind = response.text.find("&")
 	mtch = response.text[firstbit:lastind]
-	user_authenticated = True # flip auth flag
+	user_authenticated = True # flip auth flag (if needed for tpl)
 
-	# save info to database; need error checks for primary key
+	# save necessary info to database; need error checks for primary key
 	try:
 		# save identity and token
 		Participant.objects.get_or_create(ident=user_id,token=mtch)
@@ -48,8 +57,6 @@ def get_access_token(request):
 		p.token = mtch
 		p.save()
 	
-
-
 	return HttpResponse("success authorized", content_type='text/plain') # return plain text to browser... probably shouldn't do that
 	# handle response
 	# save extended token to database

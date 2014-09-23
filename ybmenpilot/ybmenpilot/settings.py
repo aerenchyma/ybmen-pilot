@@ -38,6 +38,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ybmenpilot',
+    'south',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (

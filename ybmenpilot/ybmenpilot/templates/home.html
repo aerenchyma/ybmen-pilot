@@ -4,6 +4,7 @@
     <title>YBMen Pilotd</title>
     <script>
       $(document).ready(function() {
+        // dealing with csrf token business -- this may not really be needed ultimately
         function getCookie(name) {
             var cookieValue = null;
             if (document.cookie && document.cookie != '') {
@@ -19,7 +20,7 @@
             }
             return cookieValue;
         }
-
+        // dealing with csrf token business -- this may not really be needed ultimately
         var csrftoken = getCookie('csrftoken');
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
@@ -40,8 +41,7 @@
           FB.init({
             appId: '1446542485629653',
           });     
-          //on click of button do up to ln 38 (all the rest)
-          //$.onclick('#loginbutton') {
+          //on click of button do ... (all the rest)
           $( "#loginbutton" ).click(function() {
             FB.getLoginStatus(function(response) {
               if (response.status === 'connected') {
@@ -81,7 +81,7 @@
                  });
                  // comments on permissions:
                  // Likes: Visibly enable connections with other users with mutual interests.
-                 // Likes: provide value to user by analyzing content of statuses
+                 // Statuses: provide value to user by analyzing content of statuses
               }
             });
           });
