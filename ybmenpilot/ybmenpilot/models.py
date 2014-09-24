@@ -18,11 +18,14 @@ class Participant(models.Model):
 	ident = models.CharField(primary_key=True,max_length=200)
 	name = models.CharField(max_length=80,default="")
 	token = models.CharField(max_length = 4000)
-	birthday = models.CharField(max_length=12, default="") # how are we getting this info, bday or age range
+	#birthday = models.CharField(max_length=12, default="") # how are we getting this info, bday or age range
+	age_min = models.IntegerField(default=0)
 	expirytoken = models.CharField(max_length=20,default="")
 	num_likes = models.IntegerField(default=0)
 	gender = models.CharField(max_length=20,default="")
 	hometown = models.CharField(max_length=100,default="")
+	group_admin = models.BooleanField(default=False)
+
 
 class GroupPost(models.Model):
 	ident = models.CharField(primary_key=True,max_length=100)
@@ -42,4 +45,5 @@ class GroupComment(models.Model):
 	date_posted = models.DateField()
 	time_posted = models.CharField(max_length=25)
 	num_likes_recd = models.IntegerField()
+	poster = models.CharField(max_length=100,default="") # user id of commenter - anon schema
 

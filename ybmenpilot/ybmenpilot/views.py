@@ -55,8 +55,10 @@ def get_access_token(request):
 	 	# update token if necessary
 	 	#std.out.write("excepted")
 		p = Participant.objects.filter(ident=user_id)
-		p.token = mtch
-		p.save()
+		if len(p) == 1:
+			p = p[0]
+			p.token = mtch
+			p.save()
 	
 	return HttpResponse("success authorized", content_type='text/plain') # return plain text to browser... probably shouldn't do that
 	# handle response
