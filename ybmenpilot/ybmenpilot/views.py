@@ -47,16 +47,16 @@ def get_access_token(request):
 	user_authenticated = True # flip auth flag (if needed for tpl)
 
 	# save necessary info to database; need error checks for primary key
-	#try:
+	try:
 		# save identity and token
-	Participant.objects.get_or_create(ident=user_id,token=mtch)
+		p,created = Participant.objects.get_or_create(ident=user_id,token=mtch)
 		# try to get and save other information?
-	# except IntegrityError: # except object already exists
-	#  	# update token if necessary
-	#  	std.out.write("excepted")
-	# 	p = Participant.objects.get(ident=user_id)
-	# 	p.token = mtch
-	# 	p.save()
+	except IntegrityError: # except object already exists
+	 	# update token if necessary
+	 	std.out.write("excepted")
+		p = Participant.objects.get(ident=user_id)
+		p.token = mtch
+		p.save()
 	
 	return HttpResponse("success authorized", content_type='text/plain') # return plain text to browser... probably shouldn't do that
 	# handle response

@@ -3,6 +3,8 @@ from ybmenpilot.models import GroupPost, GroupComment, Update
 from ybmenpilot.models import Participant 
 import facebook, re, hashlib
 from django.contrib import admin
+from django.db import IntegrityError
+import OpenFacebook
 
 
 
@@ -125,7 +127,7 @@ class PersonalUpdate(object):
         return tuple(self._id,self._person,self._date_posted, self._time_posted, self._message,self._num_comments,self._num_likes,self._type,self._imagecontent,self._addl_content,self._appl)
 
 # Participant object (member of group totals/info)
-class Participant(object):
+class Particip(object):
     def __init__(self, user_id):
         self._id = user_id
         self._num_posts = 0
@@ -167,7 +169,7 @@ class Comment(object): # group comment
 def get_user_stuff(graph,user_id): # not using object because it's so few things
     info_list = []
     try:
-        user_dict = graph.get_object("{}".format(user_id))
+        user_dict = graph.get_object("me")#.format(user_id))
         # now grab and save information about user
         name = user_dict["name"]
         if "hometown" in user_dict:
@@ -198,19 +200,21 @@ def get_user_updates(graph,user_id):
         for d in user_feed['data']:
             upd = PersonalUpdate(d,user_id)
             tup = upd.__repr__() # returns the tuple of info, add this list to db
-            Update.objects.get_or_create(post_id=tup[0],person_id=tup[1],date_posted=tup[2],link=get_links_from_message(tup[4]),content=tup[4],time_posted=tup[3],num_comments_recd=tup[5],num_likes_recd=tup[6],content_type=tup[7],imagecontent=tup[8],addl_content=tup[9],application=tup[10])
+            #Update.objects.get_or_create(post_id=tup[0],person_id=tup[1],date_posted=tup[2],link=get_links_from_message(tup[4]),content=tup[4],time_posted=tup[3],num_comments_recd=tup[5],num_likes_recd=tup[6],content_type=tup[7],imagecontent=tup[8],addl_content=tup[9],application=tup[10])
+            
     except IntegrityError:
         pass # should deal with updates
 
 
 # function for handling user feeds
 def from_users(user_id): # user id is -- for EACH user, user id .. in overall fxn
-    p = Participant.people.get(ident=user_id)
+    p = Participant.objects.get(ident=user_id)
     tkn = p.token # this has to exist at this point, so should error handle
     # make call to api for user information here
+    print tkn
     graph = facebook.GraphAPI(tkn)
-    #get_user_stuff(graph)
-    get_user_updates(graph) # examine what these return and deal with them appropriately
+    basic_tup = get_user_stuff(graph,user_id)
+    get_user_updates(graph,user_id) # examine what these return and deal with them appropriately
     # so this function can be run for each authenticated user
     # remember the members thing is currently different ... 
     # but expect those to already exist, just include as check adding- a new possibility in case
@@ -220,7 +224,8 @@ def from_users(user_id): # user id is -- for EACH user, user id .. in overall fx
 def run():
     # handle the individual things
     try:
-        test = Update.objects.all() # testing - works
+        #test = Update.objects.all() # testing - works
+        #print dir(test[1])
         authed_users = Participant.objects.all() # what is up with the participant model
         ## trying to make this work
         # for au in authed_users:
@@ -228,7 +233,7 @@ def run():
         #     # save 
         #     uid = au.ident # or user_id??
         #     from_users(uid)
-        #print "got that"
+        print "got that"
     except Exception, e:
         print "error", e
         print "uh oh"
