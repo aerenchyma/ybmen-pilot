@@ -86,13 +86,13 @@ class Post(object):
         return len(self._likes)
 
     def __repr__(self):
-        return tuple([self._id, self._message,len(self._comments),len(self._likes),self._time_posted,self._poster, self._type, self._link, self._imagecontent, self._addl_content, self._appl])
+        return (self._id, self._message,len(self._comments),len(self._likes),self._time_posted,self._poster, self._type, self._link, self._imagecontent, self._addl_content, self._appl)
 
 # Personal status update object
 class PersonalUpdate(object):
     def __init__(self, update_dict, user_id):
         if update_dict["from"]["id"] == user_id: # if it's a personal update, get other info, otherwise pass
-            self._id = anonymize(post_dict["id"][-15:]) # check - know that post ids are 17 characters long
+            self._id = anonymize(update_dict["id"][-15:]) # check - know that post ids are 17 characters long
             self._person = user_id # identify update by id, this reps one row
             self._date_posted = update_dict['created_time'][:10]
             self._time_posted = update_dict['created_time'][10:]
@@ -126,7 +126,7 @@ class PersonalUpdate(object):
                 self._appl = "Web" 
 
     def __repr__(self):
-        return tuple(self._id,self._person,self._date_posted, self._time_posted, self._message,self._num_comments,self._num_likes,self._type,self._imagecontent,self._addl_content,self._appl)
+        return (self._id,self._person,self._date_posted, self._time_posted, self._message,self._num_comments,self._num_likes,self._type,self._imagecontent,self._addl_content,self._appl)
 
 # Participant object (member of group totals/info)
 class Particip(object):
@@ -195,9 +195,9 @@ def get_user_stuff(graph,user_id): # not using object because it's so few things
     # if not authorized, create user obj and add group information relevant
 
 
-def get_user_updates(graph,user_id):
+def get_user_updates(feed,user_id):
     try:
-        user_feed = graph.get_object("{}/statuses?limit=1000".format(user_id)) # need to limit by date
+        user_feed = feed#"ab"#graph.get_object("{}/statuses?limit=1000".format(user_id)) # need to limit by date
         # iterate through feed and add to UPDATES table, need to do error handling
         for d in user_feed['data']:
             upd = PersonalUpdate(d,user_id)
@@ -206,14 +206,20 @@ def get_user_updates(graph,user_id):
             
     except IntegrityError:
         pass # should deal with updates
-
+        print "passed one"
 
 # function for handling user feeds
-def from_users(user_id): # user id is -- for EACH user, user id .. in overall fxn
+def from_users(user_id, me_feed, arl): # user id is -- for EACH user, user id .. in overall fxn
     p = Participant.objects.get(ident=user_id)
-
-    tkn = p.token # this has to exist at this point, so should error handle
     # make call to api for user information here
+    # have access to ofc api, from which got me_feed dictionary
+    p.name = me_feed["name"]
+    if "gender" in me_feed:
+        p.gender = me_feed["gender"]
+    if arl is not None:
+        p.age_min = arl[0]["age_range"]["min"]
+        p.hometown = str(arl[0]["hometown_location"])
+    p.save()
 
 
     # so this function can be run for each authenticated user
@@ -232,14 +238,17 @@ def run():
         token = au.token
         facebook = ofc(token)
         fb = facebook.get('me')
+        fc = facebook.fql('SELECT age_range, hometown_location FROM user WHERE uid = me()')
+        from_users(uid,fb,fc)
+        feed = facebook.get('me/feed')
+        get_user_updates(feed,uid)
+        # print fb
+        # print fc
+        #print fd
 
-
-
-
-        print fb
-        from_users(uid)
+        # now add all appropriate updates for user
  
-       #get_user_updates(graph, uid)
+
 
 
 
