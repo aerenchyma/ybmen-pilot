@@ -35,8 +35,10 @@ class GroupPost(models.Model):
 	num_comments_recd = models.IntegerField(default=0,editable=True)
 	num_likes_recd = models.IntegerField(default=0)
 	num_shares = models.IntegerField(default=0) # hm
-	link = models.CharField(max_length=100,default="")
+	link = models.CharField(max_length=1000,default="")
 	imagecontent = models.CharField(max_length=1000,default="")
+	type_post = models.CharField(max_length=25,default="Post")
+	application = models.CharField(max_length=25,default="Web")
 	#people_liked = models.ListField() # list of participant ids
 
 class GroupComment(models.Model):

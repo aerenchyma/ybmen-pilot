@@ -289,11 +289,11 @@ def main_jobs(feed, members):
         try:
             #GroupPost.objects.get_or_create(ident=pt[0],message=pt[1],num_comments=pt[2],num_likes=pt[3],date_posted=str(pt[4])[:10],poster=pt[5],type_post=pt[6],link=pt[7],imagecontent=pt[8],addl_content=pt[9],application=pt[10], num_shares=pt[11])
             # this needs to be rewritten:
-            #GroupPost.objects.get_or_create()
-            pass
+            GroupPost.objects.get_or_create(ident=pt[0],content=pt[1],date_posted=str(pt[4])[:10],time_posted=str(pt[4])[10:],num_comments_recd=pt[2],num_likes_recd=pt[3],num_shares=0,type_post=pt[6],imagecontent=pt[8],application=pt[10],link=pt[7])
+            
         except IntegrityError:
             g = GroupPost.objects.get(ident=pt[0])
-            g.num_comments,g.num_likes,g.num_shares = pt[2],pt[3],pt[11]
+            g.num_comments_recd,g.num_likes_recd = pt[2],pt[3]
             g.save()
     for us in usrs_in_db: # should already exist and should add stuff is the idea
         pr = Participant.objects.filter(ident=us[0]) # participant with correct id
