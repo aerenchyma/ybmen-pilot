@@ -1,10 +1,12 @@
 # import statements
 from ybmenpilot.models import GroupPost, GroupComment, Update
 from ybmenpilot.models import Participant 
-import facebook, re, hashlib
+import re, hashlib
+# import facebook
 from django.contrib import admin
 from django.db import IntegrityError
-import OpenFacebook
+from open_facebook import OpenFacebook as ofc
+#import OpenFacebook
 
 
 
@@ -195,12 +197,12 @@ def get_user_stuff(graph,user_id): # not using object because it's so few things
 
 def get_user_updates(graph,user_id):
     try:
-        user_feed = graph.get_object("{}/feed?limit=1000".format(user_id)) # need to limit by date
+        user_feed = graph.get_object("{}/statuses?limit=1000".format(user_id)) # need to limit by date
         # iterate through feed and add to UPDATES table, need to do error handling
         for d in user_feed['data']:
             upd = PersonalUpdate(d,user_id)
             tup = upd.__repr__() # returns the tuple of info, add this list to db
-            #Update.objects.get_or_create(post_id=tup[0],person_id=tup[1],date_posted=tup[2],link=get_links_from_message(tup[4]),content=tup[4],time_posted=tup[3],num_comments_recd=tup[5],num_likes_recd=tup[6],content_type=tup[7],imagecontent=tup[8],addl_content=tup[9],application=tup[10])
+            Update.objects.get_or_create(post_id=tup[0],person_id=tup[1],date_posted=tup[2],link=get_links_from_message(tup[4]),content=tup[4],time_posted=tup[3],num_comments_recd=tup[5],num_likes_recd=tup[6],content_type=tup[7],imagecontent=tup[8],addl_content=tup[9],application=tup[10])
             
     except IntegrityError:
         pass # should deal with updates
@@ -209,12 +211,18 @@ def get_user_updates(graph,user_id):
 # function for handling user feeds
 def from_users(user_id): # user id is -- for EACH user, user id .. in overall fxn
     p = Participant.objects.get(ident=user_id)
+    # if len(p) > 1:
+    #     pass
+    # else:
     tkn = p.token # this has to exist at this point, so should error handle
     # make call to api for user information here
     print tkn
-    graph = facebook.GraphAPI(tkn)
-    basic_tup = get_user_stuff(graph,user_id)
-    get_user_updates(graph,user_id) # examine what these return and deal with them appropriately
+    #graph = facebook.GraphAPI(tkn)
+    #basic_tup = get_user_stuff(graph,user_id)
+    #print "TUPLE"
+    #print basic_tup
+    #get_user_updates(graph,user_id) # examine what these return and deal with them appropriately
+    
     # so this function can be run for each authenticated user
     # remember the members thing is currently different ... 
     # but expect those to already exist, just include as check adding- a new possibility in case
@@ -224,11 +232,33 @@ def from_users(user_id): # user id is -- for EACH user, user id .. in overall fx
 def run():
     # handle the individual things
     authed_users = Participant.objects.all() # what is up with the participant model
-    if len(authed_users) == 0:
-        pass
-    else:
-        print "there's at least one"
-    return 0
+    for au in authed_users:
+        # get or create with error handling for update rows
+        # save 
+        uid = au.ident 
+        token = au.token
+        facebook = ofc(token)
+        fb = facebook.get('me')
+
+
+
+
+        print fb
+        from_users(uid)
+ 
+       #get_user_updates(graph, uid)
+
+
+
+
+
+    # if len(authed_users) == 0:
+    #     pass
+    # elif len(authed_users) == 1:
+    #     print "there's one"
+    # else:
+    #     print "there's at least one"
+    # return 0
 
     # try:
     #     #test = Update.objects.all() # testing - works
