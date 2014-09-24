@@ -211,18 +211,11 @@ def get_user_updates(graph,user_id):
 # function for handling user feeds
 def from_users(user_id): # user id is -- for EACH user, user id .. in overall fxn
     p = Participant.objects.get(ident=user_id)
-    # if len(p) > 1:
-    #     pass
-    # else:
+
     tkn = p.token # this has to exist at this point, so should error handle
     # make call to api for user information here
-    print tkn
-    #graph = facebook.GraphAPI(tkn)
-    #basic_tup = get_user_stuff(graph,user_id)
-    #print "TUPLE"
-    #print basic_tup
-    #get_user_updates(graph,user_id) # examine what these return and deal with them appropriately
-    
+
+
     # so this function can be run for each authenticated user
     # remember the members thing is currently different ... 
     # but expect those to already exist, just include as check adding- a new possibility in case
@@ -250,46 +243,3 @@ def run():
 
 
 
-
-
-    # if len(authed_users) == 0:
-    #     pass
-    # elif len(authed_users) == 1:
-    #     print "there's one"
-    # else:
-    #     print "there's at least one"
-    # return 0
-
-    # try:
-    #     #test = Update.objects.all() # testing - works
-    #     #print dir(test[1])
-    #     authed_users = Participant.objects.all() # what is up with the participant model
-    #     ## trying to make this work
-    #     # for au in authed_users:
-    #     #     # get or create with error handling for update rows
-    #     #     # save 
-    #     #     uid = au.ident # or user_id??
-    #     #     from_users(uid)
-    #     print "got that"
-    # except Exception, e:
-    #     print "error", e
-    #     print "uh oh"
-
-    #from_users("1446716518923703")
-
-
-    # handle all the group stuff
-
-    #pass
-
-
-
-
-    #ps = Participant.objects.all()
-
-    # for each authenticated user, try to get user info - from user gets it all for a given one
-
-
-    # for each post and comment, create object
-
-    # in each case, save to database as appropriate
