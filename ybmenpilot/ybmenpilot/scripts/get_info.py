@@ -223,20 +223,27 @@ def from_users(user_id): # user id is -- for EACH user, user id .. in overall fx
 
 def run():
     # handle the individual things
-    try:
-        #test = Update.objects.all() # testing - works
-        #print dir(test[1])
-        authed_users = Participant.objects.all() # what is up with the participant model
-        ## trying to make this work
-        # for au in authed_users:
-        #     # get or create with error handling for update rows
-        #     # save 
-        #     uid = au.ident # or user_id??
-        #     from_users(uid)
-        print "got that"
-    except Exception, e:
-        print "error", e
-        print "uh oh"
+    authed_users = Participant.objects.all() # what is up with the participant model
+    if len(authed_users) == 0:
+        pass
+    else:
+        print "there's at least one"
+    return 0
+
+    # try:
+    #     #test = Update.objects.all() # testing - works
+    #     #print dir(test[1])
+    #     authed_users = Participant.objects.all() # what is up with the participant model
+    #     ## trying to make this work
+    #     # for au in authed_users:
+    #     #     # get or create with error handling for update rows
+    #     #     # save 
+    #     #     uid = au.ident # or user_id??
+    #     #     from_users(uid)
+    #     print "got that"
+    # except Exception, e:
+    #     print "error", e
+    #     print "uh oh"
 
     #from_users("1446716518923703")
 

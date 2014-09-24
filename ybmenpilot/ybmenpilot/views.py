@@ -53,8 +53,8 @@ def get_access_token(request):
 		# try to get and save other information?
 	except IntegrityError: # except object already exists
 	 	# update token if necessary
-	 	std.out.write("excepted")
-		p = Participant.objects.get(ident=user_id)
+	 	#std.out.write("excepted")
+		p = Participant.objects.filter(ident=user_id)
 		p.token = mtch
 		p.save()
 	
